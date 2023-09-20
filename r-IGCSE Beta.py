@@ -29,7 +29,7 @@ async def hasRole(member: discord.Member, role_name: str):
 @bot.event 
 async def on_ready():
 	print(f"Logged in as {str(bot.user)}.")
-	await bot.change_presence(activity=discord.Game(name="Flynn#5627"))
+	await bot.change_presence(activity=discord.Game(name="Fortnite"))
 
 @bot.event
 async def on_message(message:discord.Message):
@@ -68,6 +68,17 @@ async def lockcommand(interaction: discord.Interaction,
   await interaction.send(f"<#{channel.id}> is scheduled to lock at {locktimeinunix} and unlock at {unlocktimeinunix}", ephemeral=True)
   channelid = f"<#{channel.id}>"
   channel = bot.get_channel(1153283974211321906)
-  await channel.send(f'Channel Name: {channelid}\nLock Time: {locktime} ({locktimeinunix})\nUnlock Time: {unlocktime} ({unlocktimeinunix})')
+  await channel.send(f'Channel Name: {channelid}\n'
+                     f'Lock Time: {locktime} ({locktimeinunix})\n'
+                     f'Unlock Time: {unlocktime} ({unlocktimeinunix})')
+
+  #TODO figure out why an erreneous time is being displayed and do smth with this
+  history = channel.history()
+  msgs = await history.flatten()
+  for msg in msgs:
+    print(msg.content, list(map(lambda txt : txt.split(" (")[0],
+                        msg.content.split('Time: ')[1:])))
+    print('\n')
+
 
 bot.run(TOKEN)
