@@ -29,43 +29,31 @@ async def hasRole(member: discord.Member, role_name: str):
 @bot.event 
 async def on_ready():
 	print(f"Logged in as {str(bot.user)}.")
-	await bot.change_presence(activity=discord.Game(name="with new experimental features"))
+	await bot.change_presence(activity=discord.Game(name="Flynn#5627"))
 
 @bot.event
 async def on_message(message:discord.Message):
     message_channel = message.channel.id
-    message_author = message.author.id
     message_content = message.content
     if message_channel == 1153283974211321906:
-        if message.author.bot: print(message_content)
-        else: await message.delete()
-    else: return
-    
+        if message.author.bot: 
+            print(message_content)
+        else: 
+            message.delete()
+    else: 
+         return
 
 @bot.slash_command(name="channellock", description="locks a channel at a specified time")
 async def lockcommand(interaction: discord.Interaction,
                         channel: discord.TextChannel =  discord.SlashOption(name="channel_name", description="Which channel do you want to lock?", required=True),
                         locktime: str = discord.SlashOption(name="lock_time", description="At what time do you want the channel to be locked?", required=True),
                         unlocktime: str = discord.SlashOption(name="unlock_time", description="At what time do you want the channel to be unlocked?", required=True)):
-  try:
-    if int(locktime) < 0:
-      await interaction.send("Lock time must be positive.", ephemeral=True)
-      return
-    elif int(locktime) > int(unlocktime) :
-      await interaction.send("Lock time cannot be after unlock time.", ephemeral=True)
-      return
-    elif int(unlocktime)<time.time():
-      await interaction.send(f"Unlock time has already passed (current time: {round(time.time())}).", ephemeral=True)
-      return
-  except ValueError:
-    await interaction.send("Times must be positive integers.", ephemeral=True)
-    return
+       locktimeinunix = f"<t:{locktime}:F>"
+       unlocktimeinunix = f"<t:{unlocktime}:F>"       
+       await interaction.send(f"<#{channel.id}> is scheduled to lock at {locktimeinunix} and unlock at {unlocktimeinunix}", ephemeral=True)
+       channelid = f"<#{channel.id}>"
+       channel = bot.get_channel(1153283974211321906)
+       await channel.send(f'Channel Name: {channelid}\nLock Time: {locktime} ({locktimeinunix})\nUnlock Time: {unlocktime} ({unlocktimeinunix})')
 
-  locktimeinunix = f"<t:{locktime}:F>"
-  unlocktimeinunix = f"<t:{unlocktime}:F>"
-  await interaction.send(f"<#{channel.id}> is scheduled to lock at {locktimeinunix} and unlock at {unlocktimeinunix}", ephemeral=True)
-  channelid = f"<#{channel.id}>"
-  channel = bot.get_channel(1153283974211321906)
-  await channel.send(f'Channel Name: {channelid}\nLock Time: {locktime} ({locktimeinunix})\nUnlock Time: {unlocktime} ({unlocktimeinunix})')
 
 bot.run(TOKEN)
