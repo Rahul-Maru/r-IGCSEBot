@@ -48,7 +48,20 @@ async def lockcommand(interaction: discord.Interaction,
                         channel: discord.TextChannel =  discord.SlashOption(name="channel_name", description="Which channel do you want to lock?", required=True),
                         locktime: str = discord.SlashOption(name="lock_time", description="At what time do you want the channel to be locked?", required=True),
                         unlocktime: str = discord.SlashOption(name="unlock_time", description="At what time do you want the channel to be unlocked?", required=True)):
-       
+
+  guild = bot.get_guild(GUILD_ID)
+
+  async def lockchannel(channelid: discord.TextChannel, msg):
+    print(channelid, msg)
+    everyonerole = guild.get_role(1111128710133854289)
+
+    lockedchannel = bot.get_channel(channelid)
+    overwrite = lockedchannel.overwrites_for(everyonerole)
+    overwrite.send_messages=False
+
+    await lockedchannel.set_permissions(everyonerole, overwrite=overwrite)
+    await lockedchannel.send(msg)
+
   try:
     if int(locktime) < 0 or int(unlocktime) < 0:
       await interaction.send("Lock time must be positive.", ephemeral=True)
@@ -60,25 +73,32 @@ async def lockcommand(interaction: discord.Interaction,
       await interaction.send(f"Unlock time has already passed (current time: {round(time.time())}).", ephemeral=True)
       return
   except ValueError:
-    await interaction.send("Times must be positive integers.", ephemeral=True)
+    await interaction.send("Times must be (positive) integers.", ephemeral=True)
     return
 
   locktimeinunix = f"<t:{locktime}:F>"
   unlocktimeinunix = f"<t:{unlocktime}:F>"
-  await interaction.send(f"<#{channel.id}> is scheduled to lock at {locktimeinunix} and unlock at {unlocktimeinunix}", ephemeral=True)
+  await interaction.send(f"<#{channel.id}> is scheduled to lock on "
+                         f"{locktimeinunix} and unlock on {unlocktimeinunix}", ephemeral=True)
   channelid = f"<#{channel.id}>"
-  channel = bot.get_channel(1153283974211321906)
-  await channel.send(f'Channel Name: {channelid}\n'
-                     f'Lock Time: {locktime} ({locktimeinunix})\n'
-                     f'Unlock Time: {unlocktime} ({unlocktimeinunix})')
+  logchannel = bot.get_channel(1153283974211321906)
+  await logchannel.send(f'Channel Name: |{channelid}|\n'
+                     f'Lock Time: |{locktime}| ({locktimeinunix})\n'
+                     f'Unlock Time: |{unlocktime}| ({unlocktimeinunix})')
 
-  #TODO figure out why an erreneous time is being displayed and do smth with this
-  history = channel.history()
+  history = logchannel.history()
   msgs = await history.flatten()
+  channels = []
   for msg in msgs:
-    print(msg.content, list(map(lambda txt : txt.split(" (")[0],
-                        msg.content.split('Time: ')[1:])))
-    print('\n')
+    channels.append(msg.content.split("|")[1::2])
+  print(channels)
+
+  for channel in channels:
+    if int(channel[1]) <= time.time() and int(channel[2]) > time.time():
+      print('\n', channel, '\n')
+      await lockchannel(int(channel[0][2:-1]), f"locked {channel[0]}")
+
+
 
 
 bot.run(TOKEN)
