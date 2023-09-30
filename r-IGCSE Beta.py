@@ -79,6 +79,10 @@ async def lockcommand(interaction: discord.Interaction,
                         locktime: str = discord.SlashOption(name="lock_time", description="At what time do you want the channel to be locked?", required=True),
                         unlocktime: str = discord.SlashOption(name="unlock_time", description="At what time do you want the channel to be unlocked?", required=True)):
 
+  if not await isModerator(interaction.user) or await hasRole(interaction.user, "Temp Mod"):
+        await interaction.send(f"Sorry {interaction.user.mention}, you don't have the permission to perform this action.", ephemeral=True)
+        return
+
   # async def togglechannellock(channelid: discord.TextChannel, msg, lockstatus=True):
   t = int(time.time()) + 1
 
