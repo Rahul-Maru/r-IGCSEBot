@@ -1,4 +1,5 @@
 import os
+from typing import Any, Coroutine, Optional
 import nextcord as discord
 from nextcord.ext import tasks, commands
 import calendar
@@ -43,62 +44,80 @@ async def on_message(message:discord.Message):
     else: 
          return
 
+class LockView(discord.ui.View):
+  def __init__(self, *, timeout: float, unlocktimeout: float = -1, channelid: discord.TextChannel, unlock = False) -> None:
+    super().__init__(timeout=timeout)
+    self.channelid = channelid
+    self.unlocktime = unlocktimeout
+    self.unlock = unlock
+    self.msg = f"{'Unl' if unlock else 'L'}ocked channel."
+
+  async def on_timeout(self):
+    
+    everyonerole = self.guild.get_role(1111128710133854289)
+
+    channel = bot.get_channel(self.channelid)
+    overwrite = channel.overwrites_for(everyonerole)
+    overwrite.send_messages=self.unlock
+
+    await channel.set_permissions(everyonerole, overwrite=overwrite)
+    await channel.send(self.msg)
+
+    if not self.unlock:
+      unlockview = LockView(timeout=self.unlocktime, unlock=True, channelid=self.channelid)
+      embed = discord.Embed(description=f"Unlocking channel in <t:{int(time.time()) + self.unlocktime}:R>.")
+      message = await channel.send(embed=embed, view=unlockview)
+      unlockview.message = message
+      unlockview.channelid = self.channelid
+      unlockview.guild = self.guild
+      unlockview.user = self.user
+
+
 @bot.slash_command(name="channellock", description="locks a channel at a specified time")
 async def lockcommand(interaction: discord.Interaction,
-                        channel: discord.TextChannel =  discord.SlashOption(name="channel_name", description="Which channel do you want to lock?", required=True),
+                        channelinput: discord.TextChannel =  discord.SlashOption(name="channel_name", description="Which channel do you want to lock?", required=True),
                         locktime: str = discord.SlashOption(name="lock_time", description="At what time do you want the channel to be locked?", required=True),
                         unlocktime: str = discord.SlashOption(name="unlock_time", description="At what time do you want the channel to be unlocked?", required=True)):
 
-  guild = bot.get_guild(GUILD_ID)
-
-  async def lockchannel(channelid: discord.TextChannel, msg):
-    print(channelid, msg)
-    everyonerole = guild.get_role(1111128710133854289)
-
-    lockedchannel = bot.get_channel(channelid)
-    overwrite = lockedchannel.overwrites_for(everyonerole)
-    overwrite.send_messages=False
-
-    await lockedchannel.set_permissions(everyonerole, overwrite=overwrite)
-    await lockedchannel.send(msg)
+  # async def togglechannellock(channelid: discord.TextChannel, msg, lockstatus=True):
+  t = int(time.time()) + 1
 
   try:
-    if int(locktime) < 0 or int(unlocktime) < 0:
-      await interaction.send("Lock time must be positive.", ephemeral=True)
-      return
-    elif int(locktime) > int(unlocktime) :
-      await interaction.send("Lock time cannot be after unlock time.", ephemeral=True)
-      return
-    elif int(unlocktime)<time.time():
-      await interaction.send(f"Unlock time has already passed (current time: {round(time.time())}).", ephemeral=True)
-      return
+    locktime = int(locktime)
+    unlocktime = int(unlocktime)
   except ValueError:
     await interaction.send("Times must be (positive) integers.", ephemeral=True)
     return
 
+  if locktime < 0 or unlocktime < 0:
+    await interaction.send("Lock time must be positive.", ephemeral=True)
+    return
+  elif locktime >= unlocktime :
+    await interaction.send("Unlock time must be after lock time.", ephemeral=True)
+    return
+  elif unlocktime < t:
+    await interaction.send(f"Unlock time has already passed (current time: {round(time.time())}).", ephemeral=True)
+    return
+
+
   locktimeinunix = f"<t:{locktime}:F>"
   unlocktimeinunix = f"<t:{unlocktime}:F>"
-  await interaction.send(f"<#{channel.id}> is scheduled to lock on "
+  await interaction.send(f"<#{channelinput.id}> is scheduled to lock on "
                          f"{locktimeinunix} and unlock on {unlocktimeinunix}", ephemeral=True)
-  channelid = f"<#{channel.id}>"
+  channelid = f"<#{channelinput.id}>"
   logchannel = bot.get_channel(1153283974211321906)
   await logchannel.send(f'Channel Name: |{channelid}|\n'
                      f'Lock Time: |{locktime}| ({locktimeinunix})\n'
                      f'Unlock Time: |{unlocktime}| ({unlocktimeinunix})')
 
-  history = logchannel.history()
-  msgs = await history.flatten()
-  channels = []
-  for msg in msgs:
-    channels.append(msg.content.split("|")[1::2])
-  print(channels)
-
-  for channel in channels:
-    if int(channel[1]) <= time.time() and int(channel[2]) > time.time():
-      print('\n', channel, '\n')
-      await lockchannel(int(channel[0][2:-1]), f"locked {channel[0]}")
-
-
+  view = LockView(timeout=locktime-t, unlocktimeout=unlocktime-max(locktime,t),
+                   channelid=channelinput.id)
+  embed = discord.Embed(description=f"Locking channel <t:{locktime}:R>.")
+  message = await channelinput.send(embed=embed, view=view)
+  view.message = message
+  view.channel = bot.get_channel(channelid)
+  view.guild = interaction.guild
+  view.user = interaction.user
 
 
 bot.run(TOKEN)
