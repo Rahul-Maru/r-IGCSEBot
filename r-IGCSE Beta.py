@@ -5,7 +5,7 @@ made by discord users:
  - rawr4200
  - juzcallmekaushik
 
-some of the comments have notes so please read them
+some of the comments have notes (marked with TODO's) so please read them
 """
 
 import nextcord as discord
@@ -20,7 +20,7 @@ dbclient = MongoClient("") # TODO replace the DB key
 # Cluster ⇒ database: "rigcse" ⇒ collection: "channellock" ⇒
 # columns: _id: int | channelid: int | unlock: bool | time: int | resolved: bool = False
 # if this doesn't match the format of the current db,
-#   I have marked the lines which use the database that should be changed
+#   I have marked the lines which use the database that should be changed with a TODO
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)
