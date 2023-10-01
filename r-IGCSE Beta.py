@@ -79,7 +79,7 @@ async def lockcommand(interaction: discord.Interaction,
                         locktime: str = discord.SlashOption(name="lock_time", description="At what time do you want the channel to be locked?", required=True),
                         unlocktime: str = discord.SlashOption(name="unlock_time", description="At what time do you want the channel to be unlocked?", required=True)):
 
-  if not await isModerator(interaction.user) or await hasRole(interaction.user, "Temp Mod"):
+  if not await isModerator(interaction.user):
         await interaction.send(f"Sorry {interaction.user.mention}, you don't have the permission to perform this action.", ephemeral=True)
         return
 
@@ -114,7 +114,7 @@ async def lockcommand(interaction: discord.Interaction,
                      f'Lock Time: |{locktime}| ({locktimeinunix})\n'
                      f'Unlock Time: |{unlocktime}| ({unlocktimeinunix})')
 
-  view = LockView(timeout=locktime-t, unlocktimeout=unlocktime-max(locktime,t),
+  view = LockView(timeout=max(locktime-t, 0), unlocktimeout=unlocktime-max(locktime,t),
                    channelid=channelinput.id)
   embed = discord.Embed(description=f"Locking channel <t:{locktime}:R>.")
   message = await channelinput.send(embed=embed, view=view)
