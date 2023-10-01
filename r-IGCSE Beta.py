@@ -13,7 +13,7 @@ from nextcord.ext import tasks, commands
 import time
 from pymongo import MongoClient
 
-TOKEN = "OTQ3ODU3NDY3NzI2MDAwMTU4.G0Zej1.IbamQIeHL7159ldgrdMXAmwvLtjyboQ9YpgBVE"
+TOKEN = ""
 GUILD_ID = 1111128710133854289
 dbclient = MongoClient("") # TODO replace the DB key
 # The format of the database is as follows
