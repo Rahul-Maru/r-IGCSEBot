@@ -2,15 +2,12 @@ import os
 
 TOKEN = os.environ.get("IGCSEBOT_TOKEN")
 LINK = os.environ.get("MONGO_LINK")
-
+# TODO make this an env variable
 BETA = False
 
-# top: main server, bottom: beta server. comment the unusued one
-GUILD_ID = 576460042774118420
-# GUILD_ID = 1111128710133854289  
+GUILD_ID = 1111128710133854289 if BETA else 576460042774118420
 MODLOG_CHANNEL_ID = 894596848357089330
-LOG_CHANNEL_ID = 1017792876584906782
-# LOG_CHANNEL_ID = 1185411597888393307
+LOG_CHANNEL_ID = 1185411597888393307 if BETA else 1017792876584906782
 WELCOME_CHANNEL_ID = 930088940654956575
 CREATE_DM_CHANNEL_ID = 895961641219407923
 
@@ -49,11 +46,11 @@ ALEVEL_SUBJECT_CODES = ['9706', '8679', '9680', '8680', '9479', '9484', '9700', 
 NO_REP_CHANNELS_LIST = [895676056823021589, 965177290814267462, 904249321338327050, 902872036844666900, 884695852520701962, 697072778553065542, 669286559404785665, 1043297064911638581, 928186859329306695, 873567700633403432, 1089622395079372800, 874956040016392192]
 
 QUESTIONS = {
-    "No. of members gained on Discord server": "10134",
-    "No. of members reached by our repository": "35000",
-    "No. of countries reached by our repository": "159",
-    "The month we hit 20,000 users (on Discord)": "october",
-    "No. of members gained on Subreddit": "17800",
-    "No. of resource guides published this year ":  "18",
-    "No. of voice minutes on our Discord server": "98000"
+    "No. of members gained on Discord server?": "10134",
+    "No. of members reached by our repository?": "35000",
+    "No. of countries reached by our repository?": "159",
+    "The month we hit 20,000 users on Discord?": "october",
+    "No. of members gained on Subreddit?": "17800",
+    "No. of resource guides published this year?":  "18",
+    "No. of voice minutes on our Discord server?": "98000"
     }
