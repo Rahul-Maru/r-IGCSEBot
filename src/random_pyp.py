@@ -1,6 +1,4 @@
-from bot import bot, commands, datetime, discord, json, keywords, pymongo, requests, tasks, time, typing
-import random
-import pyshorteners
+from bot import bot, commands, discord, random, pyshorteners
 from data import CIE_IGCSE_SUBJECT_CODES, CIE_OLEVEL_SUBJECT_CODES, CIE_ALEVEL_SUBJECT_CODES, ciealsubjectsdata, cieigsubjectsdata, cieolsubjectsdata
 
 @bot.slash_command(name="random_pyp", description="Gets a random CAIE past year paper.")
@@ -12,7 +10,6 @@ async def random_pyp(interaction: discord.Interaction,
             #PAPER_INFORMATION
             insert_codes = ["0410", "0445", "0448", "0449", "0450", "0454", "0457", "0460", "0471", "0500", "0501", "0502", "0503", "0504", "0505", "0508", "0509", "0513", "0514", "0516", "0518", "0538", "9609"]
             YEARS = ["2018", "2019", "2020", "2021", "2022", "2023"]
-            LAT_SES = ["m", "s"]
             PAPER_VARIANT = ["1", "2", "3"]
             SESSIONS = ["s", "w", "m"]
             PAPER_VARIANT_TWO = ["1", "2"]
@@ -22,7 +19,6 @@ async def random_pyp(interaction: discord.Interaction,
             ranyear = random.choice(YEARS)
             ranvar = random.choice(PAPER_VARIANT)
             ranses = random.choice(SESSIONS)
-            ses = random.choice(LAT_SES)
 
             #EMPTY_VARIABLES
             sesh = ""
@@ -35,11 +31,11 @@ async def random_pyp(interaction: discord.Interaction,
 
             if programme == "IGCSE":
                 if pn_validation == 1:
-                    if paper_number < "6" and paper_number != "0":
+                    if paper_number <= "6" and paper_number != "0":
                         if ig_validation == True:
                             subject_name = cieigsubjectsdata.get(subject_code)
                             if subject_code == "0417" and paper_number in ["2", "3"]:
-                                if ranses == "w" and ranyear != ["2019", "2023"]:
+                                if ranses == "w" and ranyear != ["2019"]:
                                     sesh = "November"
                                     qpv = f"0{paper_number}"
                                     msv = f"{paper_number}"
@@ -73,10 +69,10 @@ async def random_pyp(interaction: discord.Interaction,
                                     embed = discord.Embed(title=f"Random Paper Chosen", description=f"`{qpcode}` has been chosen at random. Below are links to the question paper, marking scheme and Source Files.\n\n**QP LINK**: {qpurl}\n**MS LINK**: {msurl}\n**SF LINK**: {sfurl}", color=0xf4b6c2)
                                     await interaction.send(embed=embed)
                             elif subject_code == "0547":
-                                    ses == "s"
+                                    sesh == "s"
                                     sesh = "June"
                                     qpcode = f"{subject_code}_{ranses}{ranyear[2:5]}_qp_{paper_number}{ranvar}"
-                                    qpurl = pyshorteners.Shortener().tinyurl.short(f"https://edupapers.store/wp-content/uploads/simple-file-list/CIE/{programme}/{subject_name}-{subject_code}/{ranyear}/{sesh}/{subject_code}_{ses}{ranyear[2:5]}_qp_{paper_number}{ranvar}.pdf")
+                                    qpurl = pyshorteners.Shortener().tinyurl.short(f"https://edupapers.store/wp-content/uploads/simple-file-list/CIE/{programme}/{subject_name}-{subject_code}/{ranyear}/{sesh}/{subject_code}_{sesh}{ranyear[2:5]}_qp_{paper_number}{ranvar}.pdf")
                                     msurl = pyshorteners.Shortener().tinyurl.short(f"https://edupapers.store/wp-content/uploads/simple-file-list/CIE/{programme}/{subject_name}-{subject_code}/{ranyear}/{sesh}/{subject_code}_{ranses}{ranyear[2:5]}_ms_{paper_number}{ranvar}.pdf")
                                     embed = discord.Embed(title=f"Random Paper Chosen", description=f"`{qpcode}` has been chosen at random. Below are links to the question paper, marking scheme and the insert.\n\n**QP LINK**: {qpurl}\n**MS LINK**: {msurl}", color=0xf4b6c2)
                                     await interaction.send(embed=embed)
@@ -115,7 +111,7 @@ async def random_pyp(interaction: discord.Interaction,
 
             elif programme == "O-Level":
                 if pn_validation == 1:
-                    if paper_number < "6" and paper_number != "0":
+                    if paper_number <= "6" and paper_number != "0":
                         if ol_validation == True:
                             subject_name = cieolsubjectsdata.get(subject_code)                 
                             if in_validation == True:
@@ -152,7 +148,7 @@ async def random_pyp(interaction: discord.Interaction,
             
             elif programme == "A-Level":
                 if pn_validation == 1:
-                    if paper_number < "6" and paper_number != "0":
+                    if paper_number <= "6" and paper_number != "0":
                         if al_validation == True:
                             subject_name = ciealsubjectsdata.get(subject_code)
                             if in_validation == True:
